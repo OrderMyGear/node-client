@@ -1,6 +1,49 @@
 # Change log
 
-All notable changes to the LaunchDarkly Node.js SDK will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
+All notable changes to the LaunchDarkly Server-Side SDK for Node.js will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
+
+## [5.9.0] - 2019-08-20
+### Added:
+- Added support for upcoming LaunchDarkly experimentation features. See `LDClient.track()`.
+
+## [5.8.2] - 2019-06-06
+### Fixed:
+- Resolved a [low-severity security vulnerability](https://nvd.nist.gov/vuln/detail/CVE-2018-16492) in an `extend` transitive dependency.
+
+
+## [5.8.1] - 2019-05-13
+### Changed:
+- Changed the package name from `ldclient-node` to `launchdarkly-node-server-sdk`.
+ 
+There are no other changes in this release. Substituting `ldclient-node` version 5.8.0 with `launchdarkly-node-server-sdk` version 5.8.1 (and updating any `require` or `import` lines that referred to the old package name) will not affect functionality.
+
+## [5.8.0] - 2019-04-06
+### Added:
+- Generated TypeDoc documentation for all types, properties, and methods is now available online at [https://launchdarkly.github.io/node-server-sdk/](https://launchdarkly.github.io/node-server-sdk/). Currently this will only be for the latest released version.
+- It is now possible to specify any of the TLS configuration parameters supported by Node's `https.request()` in the client configuration, so that they will apply to all HTTPS requests made by the SDK. In your client options, add a property called `tlsParams` whose value is an object containing those parameters, e.g. `tlsParams: { ca: 'my trusted CA certificate data' }`.
+
+### Fixed:
+- Running the SDK unit tests is now simpler in that the Redis integration can be skipped. See `CONTRIBUTING.md`.
+
+# Note on future releases
+
+The LaunchDarkly SDK repositories are being renamed for consistency. This repository is now `node-server-sdk` rather than `node-client`. (Note that `node-client-sdk` also exists, which is the _client-side_ Node SDK.)
+
+The package name will also change. In the 5.8.0 release, it is still `ldclient-node`; in all future releases, it will be `launchdarkly-node-server-sdk`. No further updates to the `ldclient-node` package will be published after this release.
+
+## [5.7.4] - 2019-04-02
+### Fixed:
+- Setting user attributes to non-string values when a string was expected would cause analytics events not to be processed. The SDK will now convert attribute values to strings as needed. ([#147](https://github.com/launchdarkly/node-client/issues/147))
+- If `track` or `identify` is called without a user, the SDK now logs a warning, and does not send an analytics event to LaunchDarkly (since it would not be processed without a user).
+
+
+## [5.7.3] - 2019-03-21
+### Changed:
+- The default value for the configuration property `capacity` (maximum number of events that can be stored at once) is now 10000, consistent with the other SDKs, rather than 1000.
+
+### Fixed:
+- A missing `var` keyword could cause an error in strict mode when evaluating a flag with rollouts. (Thanks, [phillipb](https://github.com/launchdarkly/node-client/pull/145)!)
+- The user attribute `secondary` was not included in the TypeScript declarations and therefore could not be used from TypeScript code.
 
 ## [5.7.2] - 2019-02-22
 ### Fixed:

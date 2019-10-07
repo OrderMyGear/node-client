@@ -2,7 +2,7 @@
 // This file exists only so that we can run the TypeScript compiler in the CI build
 // to validate our index.d.ts file.
 
-import * as ld from 'ldclient-node';
+import * as ld from 'launchdarkly-node-server-sdk';
 
 var logger: ld.LDLogger = {
   error: (...args) => { },
@@ -25,12 +25,18 @@ var allOptions: ld.LDOptions = {
   userKeysFlushInterval: 1,
   pollInterval: 5,
   timeout: 1,
-  logger: logger
+  logger: logger,
+  tlsParams: {
+    ca: 'x',
+    cert: 'y',
+    key: 'z'
+  }
 };
 var userWithKeyOnly: ld.LDUser = { key: 'user' };
 var user: ld.LDUser = {
   key: 'user',
   name: 'name',
+  secondary: 'otherkey',
   firstName: 'first',
   lastName: 'last',
   email: 'test@example.com',
@@ -49,6 +55,11 @@ var user: ld.LDUser = {
   privateAttributeNames: [ 'name', 'email' ]
 };
 var client: ld.LDClient = ld.init('sdk-key', allOptions);
+
+client.identify(user);
+client.track('key', user);
+client.track('key', user, { ok: 1 });
+client.track('key', user, null, 1.5);
 
 // evaluation methods with callbacks
 client.variation('key', user, false, (value: ld.LDFlagValue) => { });

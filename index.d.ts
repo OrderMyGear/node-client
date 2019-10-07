@@ -1,7 +1,7 @@
-// Type definitions for ldclient-node
+// Type definitions for launchdarkly-node-server-sdk
 
 /**
- * This is the API reference for the LaunchDarkly SDK for Node.js.
+ * This is the API reference for the LaunchDarkly Server-Side SDK for Node.js.
  *
  * In typical usage, you will call [[init]] once at startup time to obtain an instance of
  * [[LDClient]], which provides access to all of the SDK's functionality.
@@ -9,7 +9,7 @@
  * For more information, see the [SDK reference guide](http://docs.launchdarkly.com/docs/node-sdk-reference).
  */
 
-declare module 'ldclient-node' {
+declare module 'launchdarkly-node-server-sdk' {
   import { EventEmitter } from 'events';
   import { ClientOpts } from 'redis';
 
@@ -344,6 +344,33 @@ declare module 'ldclient-node' {
      * Defaults to 300.
      */
     userKeysFlushInterval?: number;
+
+    /**
+     * Additional parameters to pass to the Node HTTPS API for secure requests.  These can include any
+     * of the TLS-related parameters supported by `https.request()`, such as `ca`, `cert`, and `key`.
+     * 
+     * For more information, see the Node documentation for `https.request()` and `tls.connect()`.
+     */
+    tlsParams?: LDTLSOptions;
+  }
+
+  /**
+   * Additional parameters to pass to the Node HTTPS API for secure requests.  These can include any
+   * of the TLS-related parameters supported by `https.request()`, such as `ca`, `cert`, and `key`.
+   * 
+   * For more information, see the Node documentation for `https.request()` and `tls.connect()`.
+   */
+  export interface LDTLSOptions {
+    ca?: string | string[] | Buffer | Buffer[];
+    cert?: string | string[] | Buffer | Buffer[];
+    checkServerIdentity?: (servername: string, cert: any) => Error | undefined;
+    ciphers?: string;
+    pfx?: string | string[] | Buffer | Buffer[] | object[];
+    key?: string | string[] | Buffer | Buffer[] | object[];
+    passphrase?: string;
+    rejectUnauthorized?: boolean;
+    secureProtocol?: string;
+    servername?: string;
   }
 
   /**
@@ -354,6 +381,15 @@ declare module 'ldclient-node' {
      * A unique string identifying a user.
      */
     key: string;
+
+    /**
+     * An optional secondary key for a user.
+     *
+     * This affects [feature flag targeting](https://docs.launchdarkly.com/docs/targeting-users#section-targeting-rules-based-on-user-attributes)
+     * as follows: if you have chosen to bucket users by a specific attribute, the secondary key (if set)
+     * is used to further distinguish between users who are otherwise identical according to that attribute.
+     */
+    secondary?: string;
 
     /**
      * The user's name.
@@ -843,6 +879,11 @@ declare module 'ldclient-node' {
      * section of the dashboard. This can be used to track custom goals or other events that do
      * not currently have goals.
      *
+     * As of this version's release date, the LaunchDarkly service does not support the `metricValue`
+     * parameter. As a result, specifying `metricValue` will not yet produce any different behavior
+     * from omitting it. Refer to the [SDK reference guide](https://docs.launchdarkly.com/docs/node-sdk-reference#section-track)
+     * for the latest status.
+     * 
      * If the user is omitted or has no key, the client will log a warning
      * and will not send an event.
      *
@@ -852,8 +893,12 @@ declare module 'ldclient-node' {
      *   The user to track.
      * @param data
      *   Optional additional information to associate with the event.
+     * @param metricValue
+     *   A numeric value used by the LaunchDarkly experimentation feature in numeric custom metrics. Can
+     *   be omitted if this event is used by only non-numeric metrics. This field will also be returned
+     *   as part of the custom event for Data Export.
      */
-    track(key: string, user: LDUser, data?: any): void;
+    track(key: string, user: LDUser, data?: any, metricValue?: number): void;
 
     /**
      * Identifies a user to LaunchDarkly.
@@ -941,12 +986,12 @@ declare module 'ldclient-node' {
 /**
  * @ignore
  */
-declare module 'ldclient-node/streaming' {
+declare module 'launchdarkly-node-server-sdk/streaming' {
   import {
     LDOptions,
     LDFeatureRequestor,
     LDStreamProcessor
-  } from 'ldclient-node';
+  } from 'launchdarkly-node-server-sdk';
 
   function StreamProcessor(
     sdkKey: string,
@@ -959,15 +1004,15 @@ declare module 'ldclient-node/streaming' {
 /**
  * @ignore
  */
-declare module 'ldclient-node/requestor' {
-  import { LDOptions, LDFeatureRequestor } from 'ldclient-node';
+declare module 'launchdarkly-node-server-sdk/requestor' {
+  import { LDOptions, LDFeatureRequestor } from 'launchdarkly-node-server-sdk';
 
   function Requestor(sdkKey: string, options: LDOptions): LDFeatureRequestor;
   export = Requestor;
 }
 
-declare module 'ldclient-node/feature_store' {
-  import { LDFeatureStore } from 'ldclient-node';
+declare module 'launchdarkly-node-server-sdk/feature_store' {
+  import { LDFeatureStore } from 'launchdarkly-node-server-sdk';
 
   function InMemoryFeatureStore(): LDFeatureStore;
   export = InMemoryFeatureStore;
